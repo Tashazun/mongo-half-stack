@@ -33,5 +33,5 @@ describe('Bands E2E', () => {
             });
     });
 
-  //.  after(() => mongo.client.close());
+    // after(() => mongo.client.close());
 });
