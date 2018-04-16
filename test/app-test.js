@@ -1,4 +1,3 @@
-require('dotenv').config({ path: './test/.env' });
 const mongo = require('../lib/mongodb');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -7,17 +6,18 @@ const app = require('../lib/app');
 chai.use(chaiHttp);
 const { assert } = chai;
 
-describe('Bands E2E', () => {
-    
+
+describe('E2E bands', () => {
+
     // before(() => {
-    //     console.log('fuck');
     //     return mongo.then(db => {
-    //         return db.collection('bands').remove();
-    //     })
-    //         .catch(err => {
-    //             console.log(err);
-    //             throw err;
-    //         });
+    //         return db.dropCollection('bands')
+    //             .catch(err => {
+    //                 if(err.codeName !== 'NamespaceNotFound') {
+    //                     throw err;
+    //                 }
+    //             });
+    //     });
     // });
 
     let testBand = {
@@ -32,8 +32,7 @@ describe('Bands E2E', () => {
         singer: 'Matt Bellamy'
     };
 
-
-    it('saves a band to bands collection', () => {
+    it('saves a band', () => {
         return chai.request(app)
             .post('/bands')
             .send(testBand)
@@ -41,14 +40,6 @@ describe('Bands E2E', () => {
                 assert.ok(body._id);
                 assert.equal(body.name, testBand.name);
                 testBand = body;
-            });
-    });
-
-    it('gets a band by id', () => {
-        return chai.request(app)
-            .get(`/bands/${testBand._id}`)
-            .then(({ body }) => {
-                assert.deepEqual(body, [testBand]);
             });
     });
 
@@ -66,14 +57,21 @@ describe('Bands E2E', () => {
             });
     });
 
-    it('updates band by id', () => {
-        testBand2.genre = 'Alternative Rock';
+    it('find band by id', () => {
+        return chai.request(app)
+            .get(`/bands/${testBand._id}`)
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand]);
+            });
+    });
+
+    it('updates band', () => {
+        testBand2.genre = 'Alernative Rock';
 
         return chai.request(app)
-            .put(`bands/${testBand2._id}`)
+            .put(`/bands/${testBand2._id}`)
             .send(testBand2)
-            .then(({ body }) => {
-                testBand2 = body;
+            .then(() => {
                 return chai.request(app)
                     .get(`/bands/${testBand2._id}`);
             })
@@ -82,5 +80,19 @@ describe('Bands E2E', () => {
             });
     });
 
-    //after(() => mongo.client.close());
+    it('deletes a band', () => {
+        return chai.request(app)
+            .del(`/bands/${testBand2._id}`)
+            .then(() => {
+                return chai.request(app)
+                    .get('/bands');
+            })
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand]);
+            });
+    });
+
+
+    // after(() => mongo.client.close());
+
 });
