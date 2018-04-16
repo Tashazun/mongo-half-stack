@@ -9,16 +9,27 @@ const { assert } = chai;
 
 describe('Bands E2E', () => {
     
-    before(() => {
-        return mongo.then(db => {
-            db.dropCollection('bands');
-        });
-    });
+    // before(() => {
+    //     console.log('fuck');
+    //     return mongo.then(db => {
+    //         return db.collection('bands').remove();
+    //     })
+    //         .catch(err => {
+    //             console.log(err);
+    //             throw err;
+    //         });
+    // });
 
     let testBand = {
         name: 'Bat for Lashes',
         genre: 'Dreampop',
         singer: 'Natasha Khan'
+    };
+
+    let testBand2 = {
+        name: 'Muse',
+        genre: 'Alt Rock',
+        singer: 'Matt Bellamy'
     };
 
 
@@ -41,13 +52,35 @@ describe('Bands E2E', () => {
             });
     });
 
-    it ('gets all bands', () => {
+    it('gets all bands', () => {
         return chai.request(app)
-            .get('/bands')
+            .post('/bands')
+            .send(testBand2)
             .then(({ body }) => {
-                assert.deepEqual(body, [testBand]);
+                testBand2 = body;
+                return chai.request(app)
+                    .get('/bands');
+            })
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand, testBand2]);
             });
     });
 
-    // after(() => mongo.client.close());
+    it('updates band by id', () => {
+        testBand2.genre = 'Alternative Rock';
+
+        return chai.request(app)
+            .put(`bands/${testBand2._id}`)
+            .send(testBand2)
+            .then(({ body }) => {
+                testBand2 = body;
+                return chai.request(app)
+                    .get(`/bands/${testBand2._id}`);
+            })
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand2]);
+            });
+    });
+
+    //after(() => mongo.client.close());
 });
