@@ -9,11 +9,11 @@ const { assert } = chai;
 
 describe('Bands E2E', () => {
     
-    // before(() => {
-    //     return mongo.then(db => {
-    //         db.collection('bands').remove();
-    //     });
-    // });
+    before(() => {
+        return mongo.then(db => {
+            db.dropCollection('bands');
+        });
+    });
 
     let testBand = {
         name: 'Bat for Lashes',
@@ -30,6 +30,22 @@ describe('Bands E2E', () => {
                 assert.ok(body._id);
                 assert.equal(body.name, testBand.name);
                 testBand = body;
+            });
+    });
+
+    it('gets a band by id', () => {
+        return chai.request(app)
+            .get(`/bands/${testBand._id}`)
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand]);
+            });
+    });
+
+    it ('gets all bands', () => {
+        return chai.request(app)
+            .get('/bands')
+            .then(({ body }) => {
+                assert.deepEqual(body, [testBand]);
             });
     });
 

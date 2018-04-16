@@ -1,7 +1,3 @@
 language: node_js
-node_js:
-  - "8"
-services:
-  - mongoDB
-before_script:
-  - psql -c 'create database showlist_test;' -U postgres
+node_js: "8"
+services: mongoDB
