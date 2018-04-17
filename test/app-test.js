@@ -9,16 +9,16 @@ const { assert } = chai;
 
 describe('E2E bands', () => {
 
-    // before(() => {
-    //     return mongo.then(db => {
-    //         return db.dropCollection('bands')
-    //             .catch(err => {
-    //                 if(err.codeName !== 'NamespaceNotFound') {
-    //                     throw err;
-    //                 }
-    //             });
-    //     });
-    // });
+    before(() => {
+        return mongo.then(db => {
+            return db.dropCollection('bands')
+                .catch(err => {
+                    if(err.codeName !== 'NamespaceNotFound') {
+                        throw err;
+                    }
+                });
+        });
+    });
 
     let testBand = {
         name: 'Bat for Lashes',
@@ -93,6 +93,5 @@ describe('E2E bands', () => {
     });
 
 
-    // after(() => mongo.client.close());
-
+    after(() => mongo.client.close());
 });
